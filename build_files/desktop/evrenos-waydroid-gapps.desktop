@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=EvrenOS Waydroid Setup (GApps)
+Comment=Initialize Waydroid with Google Apps image
+Exec=pkexec /usr/local/bin/evrenos-waydroid-init --gapps
+Terminal=false
+Type=Application
+Icon=android
+Categories=System;

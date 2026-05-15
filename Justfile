@@ -1,4 +1,4 @@
-export image_name := env("IMAGE_NAME", "image-template") # output image name, usually same as repo name, change as needed
+export image_name := env("IMAGE_NAME", "evrenos") # output image name, usually same as repo name, change as needed
 export default_tag := env("DEFAULT_TAG", "latest")
 export bib_image := env("BIB_IMAGE", "quay.io/centos-bootc/bootc-image-builder:latest")
 
@@ -317,3 +317,33 @@ format:
     fi
     # Run shfmt on all Bash scripts
     /usr/bin/find . -iname "*.sh" -type f -exec shfmt --write "{}" ';'
+
+# Install EvrenOS desktop/gaming Flatpaks
+[group('EvrenOS')]
+install-bottles:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+    flatpak install -y --noninteractive flathub com.usebottles.bottles com.heroicgameslauncher.hgl net.davidotek.pupgui2 net.lutris.Lutris
+
+# Initialize a Wine prefix and apply common tweaks
+[group('EvrenOS')]
+configure-wine:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    WINEPREFIX="${WINEPREFIX:-$HOME/.wine}" wineboot -u
+    WINEPREFIX="${WINEPREFIX:-$HOME/.wine}" winetricks -q corefonts
+
+# Initialize Waydroid (vanilla image)
+[group('EvrenOS')]
+setup-waydroid:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    sudo /usr/local/bin/evrenos-waydroid-init
+
+# Initialize Waydroid with GApps
+[group('EvrenOS')]
+waydroid-init-gapps:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    sudo /usr/local/bin/evrenos-waydroid-init --gapps
