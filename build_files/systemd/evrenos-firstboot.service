@@ -1,0 +1,12 @@
+[Unit]
+Description=EvrenOS first boot setup
+After=network-online.target
+Wants=network-online.target
+ConditionPathExists=!/var/lib/evrenos/.firstboot-complete
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/evrenos-firstboot
+
+[Install]
+WantedBy=multi-user.target

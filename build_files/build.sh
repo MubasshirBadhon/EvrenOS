@@ -2,23 +2,44 @@
 
 set -ouex pipefail
 
-### Install packages
+# Core packages layered into the immutable image
+CORE_PACKAGES=(
+    git
+    curl
+    wget
+    tmux
+    zsh
+    neovim
+    podman
+    distrobox
+    wine
+    winetricks
+    lutris
+    waydroid
+    gamescope
+)
 
-# Packages can be installed from any enabled yum repo on the image.
-# RPMfusion repos are available by default in ublue main images
-# List of rpmfusion packages can be found here:
-# https://mirrors.rpmfusion.org/mirrorlist?path=free/fedora/updates/43/x86_64/repoview/index.html&protocol=https&redirect=1
+dnf5 install -y "${CORE_PACKAGES[@]}"
 
-# this installs a package from fedora repos
-dnf5 install -y tmux 
-
-# Use a COPR Example:
-#
-# dnf5 -y copr enable ublue-os/staging
-# dnf5 -y install package
-# Disable COPRs so they don't end up enabled on the final image:
-# dnf5 -y copr disable ublue-os/staging
-
-#### Example for enabling a System Unit File
-
+# Keep podman available for tooling workflows
 systemctl enable podman.socket
+
+# Set default shell for newly created users
+if [[ -f /etc/default/useradd ]]; then
+    sed -i 's|^SHELL=.*|SHELL=/bin/zsh|' /etc/default/useradd
+fi
+
+# Install helper scripts
+install -Dm755 /ctx/scripts/evrenos-firstboot.sh /usr/local/bin/evrenos-firstboot
+install -Dm755 /ctx/scripts/evrenos-install-flatpaks.sh /usr/local/bin/evrenos-install-flatpaks
+install -Dm755 /ctx/scripts/evrenos-waydroid-init.sh /usr/local/bin/evrenos-waydroid-init
+
+# Install systemd units
+install -Dm644 /ctx/systemd/evrenos-firstboot.service /usr/lib/systemd/system/evrenos-firstboot.service
+install -Dm644 /ctx/systemd/evrenos-waydroid-firstboot.service /usr/lib/systemd/system/evrenos-waydroid-firstboot.service
+systemctl enable evrenos-firstboot.service
+systemctl enable evrenos-waydroid-firstboot.service
+
+# Add desktop launchers for Waydroid setup shortcuts
+install -Dm644 /ctx/desktop/evrenos-waydroid-setup.desktop /usr/share/applications/evrenos-waydroid-setup.desktop
+install -Dm644 /ctx/desktop/evrenos-waydroid-gapps.desktop /usr/share/applications/evrenos-waydroid-gapps.desktop

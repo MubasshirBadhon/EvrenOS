@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=EvrenOS Waydroid Setup
+Comment=Initialize Waydroid with default image
+Exec=pkexec /usr/local/bin/evrenos-waydroid-init
+Terminal=false
+Type=Application
+Icon=android
+Categories=System;

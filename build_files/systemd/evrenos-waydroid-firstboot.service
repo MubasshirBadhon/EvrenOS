@@ -1,0 +1,12 @@
+[Unit]
+Description=EvrenOS Waydroid initialization
+After=network-online.target
+Wants=network-online.target
+ConditionPathExists=!/var/lib/waydroid/images/system.img
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/evrenos-waydroid-init
+
+[Install]
+WantedBy=multi-user.target
